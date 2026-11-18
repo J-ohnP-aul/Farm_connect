@@ -1,0 +1,64 @@
+@startuml component-diagram
+' Local Farm Map V1 — UML Component Diagram
+' Sources: SDD §2-7 (system context, module map, dependency rules, deployment)
+skinparam componentStyle rectangle
+
+actor "Buyer" as buyer
+actor "Farmer" as farmer
+actor "Admin" as admin
+
+package "Browser (PWA)" {
+  component "Jinja2 pages\n+ Tailwind CSS\n(compiled, no CDN)" as ui
+  component "Leaflet map\n+ JSON fetch" as leaflet
+  component "Service worker\n+ manifest\n(static assets only)" as sw
+}
+
+cloud "OpenStreetMap\ntile server" as osm
+
+package "Django application (one deployable)" {
+  component "core\n(landing, base template,\nmanifest & worker files)" as core
+  component "accounts\n(phone auth, roles)" as accounts
+  component "farms\n(profile, grid-snap,\nis_active gate)" as farms
+  component "products\n(fixed catalogue)" as products
+  component "listings\n(daily upsert,\nactive manager)" as listings
+  component "discovery\n(map JSON endpoint,\nfarm detail,\ncontact redirect)" as discovery
+}
+
+database "SQLite + SpatiaLite\n(→ PostgreSQL + PostGIS)" as db
+
+component "nginx\n(TLS, static)" as nginx
+component "gunicorn" as gunicorn
+
+buyer --> ui
+farmer --> ui
+admin --> ui
+ui ..> core : base template
+leaflet --> discovery : JSON map data\n& contact redirect
+sw ..> ui : cached static assets
+leaflet --> osm : map tiles (browser-side)
+
+ui --> nginx
+leaflet --> nginx
+nginx --> gunicorn
+gunicorn --> core
+gunicorn --> accounts
+gunicorn --> farms
+gunicorn --> products
+gunicorn --> listings
+gunicorn --> discovery
+
+core <-- accounts
+core <-- farms
+products <-- farms
+farms <-- listings
+products <-- listings
+farms <-- discovery
+products <-- discovery
+listings <-- discovery
+
+accounts --> db
+farms --> db
+products --> db
+listings --> db
+discovery --> db
+@enduml

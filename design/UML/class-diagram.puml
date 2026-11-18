@@ -1,0 +1,91 @@
+@startuml class-diagram
+' Local Farm Map V1 — UML Class Diagram (domain + key services)
+' Sources: Database design §5 (field-level detail there); SDD §4-5
+skinparam classAttributeIconSize 0
+hide empty members
+
+class User <<AbstractUser>> {
+  +phone_number : str  <<unique, USERNAME_FIELD>>
+  +name : str
+  +role : Role  {farmer, admin}
+  +password : hash
+  +is_active : bool
+  +is_staff : bool
+}
+
+class Farm {
+  +name : str
+  +location : Point  «exact, private»
+  +public_location : Point  «grid-snapped ~1 km»
+  +show_exact_pin : bool = false
+  +is_active : bool = false  «admin gate»
+  +pickup_hours : text
+  +contact_phone : str  «E.164»
+  +whatsapp_number : str?
+}
+
+class Product {
+  +name : str
+  +slug : str  <<unique>>
+  +category : str
+  +unit : str
+  +is_active : bool
+}
+
+class Listing {
+  +listing_date : date  «pilot-local»
+  +quantity_note : str?
+  +price_kes : Decimal?  «>= 0»
+  +withdrawn_at : datetime?
+  +created_at : datetime
+  +expires_at : datetime  «midnight local»
+  +isActive() : bool  «expires_at > now AND withdrawn_at IS NULL»
+}
+
+class Place {
+  +name : str
+  +slug : str  <<unique>>
+  +location : Point
+  +search_radius_m : int = 15000
+  +is_active : bool
+  +display_order : int
+}
+
+class ContactEvent {
+  +channel : Channel  {call, whatsapp}
+  +created_at : datetime
+}
+
+class ActiveListingManager <<Manager>> {
+  +get_queryset() : QuerySet  «expires_at > now AND withdrawn_at IS NULL»
+}
+
+class DiscoveryService <<Service>> {
+  +nearby_listings(point, product, radius) : [FarmResult]
+  «only module with spatial SQL; UTM on SpatiaLite, geography on PostGIS»
+}
+
+class GridSnapHelper <<Utility>> {
+  +snap(point) : Point
+  «round to 2 dp (~1 km), regenerates public_location on save»
+}
+
+class PilotReportCommand <<ManagementCommand>> {
+  +weekly_farmer_activity()
+  +weekly_contact_counts()
+}
+
+User "1" --> "0..1" Farm : owns (OneToOne)
+Farm "1" --> "*" Listing : has
+Product "1" --> "*" Listing : appears in
+Farm "*" --> "*" Product : offers (M2M)
+Farm "1" --> "*" ContactEvent : receives
+Listing "0..1" --> "*" ContactEvent : context of
+Listing ..> ActiveListingManager : default queryset
+DiscoveryService ..> Farm : queries
+DiscoveryService ..> Listing : via active manager
+DiscoveryService ..> Place : manual origins
+Farm ..> GridSnapHelper : on save
+PilotReportCommand ..> Listing : Q4 metrics
+PilotReportCommand ..> ContactEvent : Q5 metrics
+@enduml

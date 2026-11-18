@@ -1,0 +1,65 @@
+@startuml use-case
+' Local Farm Map V1 — UML Use Case Diagram
+' Sources: SRS §2.2, §8 (UC-01..04); Database design §5; SDD §4-5
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Buyer" as buyer
+actor "Farmer" as farmer
+actor "Admin" as admin
+actor "Clock\n(midnight)" as clock
+
+rectangle "Local Farm Map V1" {
+  ' ---- Buyer (UC-01, UC-04) ----
+  usecase "Browse nearby farms\n(no account needed)\n[UC-01]" as UC01
+  usecase "Set location\n(GPS or pick town/estate)" as UCloc
+  usecase "Filter by product\n(eggs, milk, honey, vegetables)" as UCfilter
+  usecase "View farm detail\n(active listings, price,\npickup hours)" as UCdetail
+  usecase "Contact farmer\n(Call / WhatsApp)\n[UC-04]" as UC04
+  usecase "Log contact event\n(redirect endpoint)" as UClog
+
+  ' ---- Farmer (UC-02, UC-03) ----
+  usecase "Register with phone number\n[UC-02]" as UC02
+  usecase "Sign in" as UClogin
+  usecase "Create / edit farm profile\n[UC-02]" as UCprofile
+  usecase "Set location privacy\n(approximate pin by default)" as UCprivacy
+  usecase "Publish today's availability\n[UC-03]" as UC03
+  usecase "Enter optional price\nand quantity note" as UCprice
+  usecase "Withdraw listing early\n(sold out)" as UCwithdraw
+  usecase "Receive buyer contact\n(phone / WhatsApp)" as UCreceive
+
+  ' ---- System / Admin ----
+  usecase "Auto-expire listings\nat midnight" as UCexpire
+  usecase "Activate farm\nat onboarding" as UCactivate
+  usecase "Manage product catalogue\nand users" as UCadmin
+  usecase "Run pilot report\n(weekly metrics)" as UCreport
+}
+
+' Buyer relationships
+buyer --> UC01
+buyer --> UCdetail
+buyer --> UC04
+UC01 ..> UCloc : <<include>>
+UC01 ..> UCfilter : <<include>>
+UCdetail ..> UC04 : <<include>>
+UC04 ..> UClog : <<include>>
+
+' Farmer relationships
+farmer --> UC02
+farmer --> UClogin
+farmer --> UCprofile
+farmer --> UC03
+UCprofile ..> UCprivacy : <<include>>
+UC03 ..> UCprice : <<extend>>
+UC03 ..> UCwithdraw : <<extend>>
+UC02 ..> UClogin : <<include>>
+UC03 ..> UCreceive : triggers
+
+' System / Admin relationships
+clock --> UCexpire
+admin --> UCactivate
+admin --> UCadmin
+admin --> UCreport
+UCactivate ..> UC01 : makes farm visible in
+@enduml

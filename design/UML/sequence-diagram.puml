@@ -1,0 +1,37 @@
+@startuml sequence-diagram
+' Local Farm Map V1 — UML Sequence Diagram
+' Flow: UC-01 Browse Nearby Farms + UC-04 Contact a Farmer
+' (the two buyer journeys; farmer publish flow is the activity diagram)
+skinparam responseMessageBelowArrow true
+
+actor "Buyer" as B
+participant "Browser\n(Leaflet map)" as L
+participant "discovery\nviews" as V
+participant "DiscoveryService" as DS
+participant "ActiveListing\nManager" as ALM
+database "SpatiaLite /\nPostGIS" as DB
+
+== Discover farms ==
+B -> L : open app, allow location\n(or pick town/estate)
+L -> V : GET /api/map?origin=..&product=eggs
+V -> DS : nearby_listings(point, product, radius)
+DS -> ALM : active listings for product
+ALM -> DB : SELECT ... WHERE expires_at > now()\nAND withdrawn_at IS NULL\nAND ST_DWithin(farm.location, point, radius)
+DB --> ALM : rows (farms + active listings)
+ALM --> DS : results
+DS -> DS : choose pin:\nshow_exact_pin ? location : public_location
+DS --> V : farms with pins, listings, NO phone numbers
+V --> L : JSON map data
+L --> B : farm markers on map
+
+== Open farm & contact ==
+B -> L : tap marker
+L -> V : GET /farms/{id}/
+V -> ALM : farm + active listings
+V --> L : farm detail page\n(phone shown only here)
+B -> L : tap "WhatsApp"
+L -> V : GET /contact/{farm}/whatsapp
+V -> DB : insert ContactEvent(farm, channel)
+V --> L : 302 redirect to wa.me link
+L --> B : WhatsApp opens — pickup arranged,\npayment at farm gate
+@enduml

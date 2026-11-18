@@ -1,0 +1,35 @@
+@startuml activity-diagram
+' Local Farm Map V1 — UML Activity Diagram
+' Flow: UC-03 Publish Today's Availability (the farmer's <10 s daily update)
+' Alternates from SRS UC-03: validation failure, connectivity loss
+start
+:Open daily update screen
+(authenticated farmer with farm profile);
+:Today's listings shown as toggles
+(pre-checked from existing rows);
+while (more products to mark?) is (yes)
+  :Toggle product available today
+  (eggs / milk / honey / vegetables);
+endwhile (no)
+:Optionally enter price (KES)
+and quantity note;
+if (all fields valid?) then (yes)
+  :Submit update;
+  if (connectivity available?) then (yes)
+    :UPSERT listing per product
+    UNIQUE (farm, product, listing_date);
+    :Set created_at = now
+    expires_at = midnight local (Africa/Nairobi);
+    :Listings active in discovery
+    until expiry unless renewed;
+    :Show confirmation;
+  else (no)
+    :Warn: update NOT confirmed
+    retry when back online;
+  endif
+else (no)
+  :Highlight invalid field
+  (e.g. negative price);
+endif
+stop
+@enduml
