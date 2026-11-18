@@ -25,7 +25,7 @@
         </svg>
       </button>
       <div id="menu-panel" hidden
-           class="absolute right-4 top-[calc(100%+4px)] z-[1300] w-56 rounded-card border border-soil-200 bg-white py-2 shadow-lg">
+           class="absolute right-4 top-[calc(100%+4px)] z-[1300] w-56 rounded-card border border-soil-200 bg-white py-2 text-soil-800 shadow-lg">
         {% if request.user.is_authenticated %}
           <a class="block px-4 py-3 hover:bg-leaf-50" href="{{ url('dashboard') }}">Dashboard</a>
           <a class="block px-4 py-3 hover:bg-leaf-50" href="{{ url('daily_update') }}">Today's availability</a>
