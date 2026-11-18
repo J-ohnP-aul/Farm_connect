@@ -6,11 +6,17 @@ design/system/system-design.md. Values marked "my call" there are
 surfaced below as named settings so they are easy to change in one place.
 """
 
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-r9z5$j1^%vo7r$lp(d%6o@=_+9tk=gx#_)zfc&0cv4clt6(3e4'
+# Set DJANGO_SECRET_KEY in the environment for anything beyond local dev —
+# the fallback below is a development-only key and must never see production.
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-r9z5$j1^%vo7r$lp(d%6o@=_+9tk=gx#_)zfc&0cv4clt6(3e4',
+)
 DEBUG = True
 
 ALLOWED_HOSTS = []
