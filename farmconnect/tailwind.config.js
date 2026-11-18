@@ -53,9 +53,13 @@ export default {
           '"Noto Sans"', 'sans-serif',
         ],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        // warmer display face for the wordmark and farm names — system
+        // serif stack, zero webfont payload (NFR-03)
+        display: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
       },
       borderRadius: {
         card: '0.75rem',
+        pill: '9999px',
       },
       maxWidth: {
         shell: '42rem',  // single-column content width

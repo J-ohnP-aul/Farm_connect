@@ -19,6 +19,11 @@
   }
   /* Checkbox/radio accent inside lists (e.g. product pickers) */
   input[type='checkbox'], input[type='radio'] { @apply accent-leaf-700; }
+  /* Tailwind preflight caps img at 100% width, which breaks Leaflet tiles
+     into white grid seams — undo it inside the map only. */
+  .leaflet-pane img { max-width: none !important; }
+  .leaflet-container { background: #E1DECF; }  /* soil-200 behind tiles */
+  .leaflet-container a.leaflet-popup-close-button { color: #6F6B59; }
 }
 
 @layer components {
@@ -62,4 +67,30 @@
   .checkbox-list li { @apply border-b border-soil-100 last:border-b-0; }
   .checkbox-list label { @apply flex min-h-[48px] cursor-pointer items-center gap-3 rounded-lg px-2 text-base font-medium text-soil-800; }
   .checkbox-list input { @apply h-6 w-6 shrink-0; }
+
+  /* --- map screen redesign --- */
+  .badge-available {
+    @apply inline-flex items-center rounded-pill bg-harvest-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white;
+  }
+  .skeleton-card { @apply animate-pulse rounded-card border border-soil-200 bg-soil-100 p-4; }
+  .skeleton-line { @apply mt-2 h-3 rounded bg-soil-200; }
+
+  /* price-chip pins (divIcon markup) */
+  .pin-chip span {
+    @apply inline-flex items-center whitespace-nowrap rounded-pill border-2 border-leaf-700 bg-white px-2.5 py-1 text-xs font-bold text-leaf-800 shadow-md;
+  }
+  .pin-chip-active span {
+    @apply border-harvest-500 bg-harvest-500 text-white;
+  }
+  .farm-card-highlight { @apply border-harvest-500 ring-2 ring-harvest-300; }
+}
+
+/* marker-cluster colours tuned to the leaf palette (plugin CSS override) */
+.marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+  background-color: rgba(43, 90, 49, 0.2);
+}
+.marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+  background-color: #2B5A31;
+  color: #fff;
+  font-weight: 700;
 }
