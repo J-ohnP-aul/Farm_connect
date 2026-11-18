@@ -57,4 +57,9 @@
   .callout { @apply rounded-lg border px-4 py-3 text-sm leading-relaxed; }
   .callout-wait { @apply border-harvest-300 bg-harvest-50 text-soil-800; }
   .callout-ok { @apply border-leaf-200 bg-leaf-50 text-leaf-800; }
+
+  /* --- checkbox-select widget (product picker renders as ul > li > label) --- */
+  .checkbox-list li { @apply border-b border-soil-100 last:border-b-0; }
+  .checkbox-list label { @apply flex min-h-[48px] cursor-pointer items-center gap-3 rounded-lg px-2 text-base font-medium text-soil-800; }
+  .checkbox-list input { @apply h-6 w-6 shrink-0; }
 }

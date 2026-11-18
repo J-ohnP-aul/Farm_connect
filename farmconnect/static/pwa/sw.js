@@ -2,9 +2,9 @@
    Caches static assets only. Map/listing data is ALWAYS network-first and
    is never cached, so offline content can never present itself as
    confirmed live availability (FR-34, NFR-09). */
-const CACHE = 'lfm-static-v1';
+const CACHE = 'lfm-static-v2';
 const ASSETS = [
-  '/static/css/app.css',
+  '/static/css/main.css',
   '/static/pwa/manifest.webmanifest',
   '/static/pwa/icon.svg',
 ];

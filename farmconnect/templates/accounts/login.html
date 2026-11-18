@@ -1,13 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Log in — Local Farm Map{% endblock %}
 {% block content %}
-<h1>Log in</h1>
-<form method="post" class="stack">
+<h1 class="text-2xl font-extrabold tracking-tight text-soil-900">Log in</h1>
+<form method="post" class="mt-5 space-y-4 rounded-card border border-soil-200 bg-white p-5">
   {{ csrf_input | safe }}
-  <label>Phone number {{ form.username }} {{ form.username.errors }}</label>
-  <label>Password {{ form.password }} {{ form.password.errors }}</label>
-  {% if form.non_field_errors %}<div class="error">{{ form.non_field_errors }}</div>{% endif %}
-  <button type="submit" class="btn btn-primary btn-big">Log in</button>
+  <div>
+    <label class="field-label" for="id_username">Phone number</label>
+    <input id="id_username" name="username" type="tel" inputmode="tel" autocomplete="tel" required autofocus
+           class="field-input" value="{{ form.username.value or '' }}">
+    {% if form.username.errors %}<p class="field-error">{{ form.username.errors.0 }}</p>{% endif %}
+  </div>
+  <div>
+    <label class="field-label" for="id_password">Password</label>
+    <input id="id_password" name="password" type="password" autocomplete="current-password" required
+           class="field-input">
+    {% if form.password.errors %}<p class="field-error">{{ form.password.errors.0 }}</p>{% endif %}
+  </div>
+  {% if form.non_field_errors %}<p class="field-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+  <button type="submit" class="btn btn-primary btn-lg">Log in</button>
 </form>
-<p>New here? <a href="{{ url('register') }}">Sign up as a farmer</a>.</p>
+<p class="mt-4 text-sm text-soil-700">
+  New here? <a class="font-semibold text-leaf-800 underline" href="{{ url('register') }}">Sign up as a farmer</a>.
+</p>
 {% endblock %}
