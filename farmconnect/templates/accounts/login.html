@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Log in — Local Farm Map{% endblock %}
+{% block content %}
+<h1>Log in</h1>
+<form method="post" class="stack">
+  {{ csrf_input | safe }}
+  <label>Phone number {{ form.username }} {{ form.username.errors }}</label>
+  <label>Password {{ form.password }} {{ form.password.errors }}</label>
+  {% if form.non_field_errors %}<div class="error">{{ form.non_field_errors }}</div>{% endif %}
+  <button type="submit" class="btn btn-primary btn-big">Log in</button>
+</form>
+<p>New here? <a href="{{ url('register') }}">Sign up as a farmer</a>.</p>
+{% endblock %}

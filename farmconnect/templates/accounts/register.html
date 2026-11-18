@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Farmer sign up — Local Farm Map{% endblock %}
+{% block content %}
+<h1>Farmer sign up</h1>
+<p>Create your account with your phone number. Buyers browse without an account — accounts are for farmers only.</p>
+<form method="post" class="stack">
+  {{ csrf_input | safe }}
+  <label>Name {{ form.name }} {{ form.name.errors }}</label>
+  <label>Phone number (e.g. 0712 345 678) {{ form.phone_number }} {{ form.phone_number.errors }}</label>
+  <label>Password {{ form.password1 }} {{ form.password1.errors }}</label>
+  <label>Repeat password {{ form.password2 }} {{ form.password2.errors }}</label>
+  {% if form.non_field_errors %}<div class="error">{{ form.non_field_errors }}</div>{% endif %}
+  <button type="submit" class="btn btn-primary btn-big">Create account</button>
+</form>
+<p>Already registered? <a href="{{ url('login') }}">Log in</a>.</p>
+{% endblock %}

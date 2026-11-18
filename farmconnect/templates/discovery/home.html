@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Map — Local Farm Map{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+{% block content %}
+<h1 class="sr-only">Nearby farms</h1>
+
+<div class="filterbar">
+  <div class="chips">
+    <a class="chip {% if not selected_product %}active{% endif %}"
+       href="?{% if selected_place %}place={{ selected_place }}{% endif %}">All</a>
+    {% for p in products %}
+    <a class="chip {% if selected_product == p.slug %}active{% endif %}"
+       href="?product={{ p.slug }}{% if selected_place %}&amp;place={{ selected_place }}{% endif %}">{{ p.name }}</a>
+    {% endfor %}
+  </div>
+  <div class="location-row">
+    <select id="place-select" aria-label="Choose area">
+      <option value="">Choose area…</option>
+      {% for pl in places %}
+      <option value="{{ pl.slug }}" {% if selected_place == pl.slug %}selected{% endif %}>{{ pl.name }}</option>
+      {% endfor %}
+    </select>
+    <button id="btn-area" class="btn btn-primary" type="button">Search</button>
+    <button id="btn-here" class="btn" type="button">Use my location</button>
+  </div>
+</div>
+
+<div id="map" aria-label="Map of nearby farms"></div>
+<div id="empty-state" class="empty" hidden>No farms found with active listings here today. Try another product or place.</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const PLACES = {{ places_json | safe }};
+  const MAP_CENTER = {{ map_center | safe }};
+  const MAP_ZOOM = {{ map_zoom }};
+
+  const select = document.getElementById('place-select');
+  const emptyEl = document.getElementById('empty-state');
+
+  // Leaflet renders no tiles until a view is set, so always start with one
+  // (URL place -> first place -> settings default).
+  const params0 = new URLSearchParams(window.location.search);
+  if (params0.get('place') && select.querySelector(`option[value="${params0.get('place')}"]`)) {
+    select.value = params0.get('place');
+  }
+  const initial = PLACES.find(p => p.slug === (select.value || params0.get('place')))
+    || PLACES[0] || { lat: MAP_CENTER[0], lng: MAP_CENTER[1] };
+  const map = L.map('map').setView([initial.lat, initial.lng], MAP_ZOOM);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(map);
+
+  let markers = L.featureGroup().addTo(map);  // featureGroup adds getBounds()
+
+  function render(farms) {
+    markers.clearLayers();
+    emptyEl.hidden = farms.length > 0;
+    if (!farms.length) {
+      emptyEl.textContent = 'No farms found with active listings here today. Try another product or place.';
+    }
+    for (const farm of farms) {
+      const marker = L.circleMarker([farm.pin.lat, farm.pin.lng], {
+        radius: 9,
+        color: farm.pin.approximate ? '#166534' : '#b45309',
+        fillOpacity: 0.85,
+      });
+      marker.bindPopup(
+        `<strong>${farm.name}</strong><br>` +
+        farm.listings.map(l => `${l.product}${l.price_kes ? ' — KES ' + l.price_kes : ''}`).join('<br>') +
+        (farm.pickup_hours ? `<br><em>${farm.pickup_hours}</em>` : '') +
+        `<br><a href="/map/farm/${farm.id}/">Details &amp; contact</a>`
+      );
+      markers.addLayer(marker);
+    }
+    if (farms.length) {
+      map.fitBounds(markers.getBounds().pad(0.25));
+    }
+  }
+
+  function load(params) {
+    fetch('/map/data/?' + params)
+      .then(r => r.json())
+      .then(data => {
+        if (data.farms) render(data.farms);
+      })
+      .catch(() => {
+        emptyEl.hidden = false;
+        emptyEl.textContent =
+          'Could not reach the server — showing possibly outdated data is not possible offline.';
+      });
+  }
+
+  function syncUrl(q) {
+    history.replaceState(null, '', '/map/' + (q.toString() ? '?' + q.toString() : ''));
+  }
+
+  // Keep the product filter when re-searching a new area
+  function queryWithArea(placeSlug) {
+    const q = new URLSearchParams(window.location.search);
+    q.delete('lat'); q.delete('lng'); q.delete('place');
+    if (placeSlug) q.set('place', placeSlug);
+    return q;
+  }
+
+  function searchArea() {
+    const slug = select.value;
+    const q = queryWithArea(slug);
+    syncUrl(q);
+    const place = PLACES.find(p => p.slug === slug);
+    if (place) map.setView([place.lat, place.lng], MAP_ZOOM);
+    load(q);
+  }
+
+  function searchHere() {
+    if (!navigator.geolocation) {
+      emptyEl.hidden = false;
+      emptyEl.textContent = 'This device cannot share a location. Choose an area and press Search.';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const q = new URLSearchParams(window.location.search);
+        q.delete('place');
+        q.set('lat', pos.coords.latitude.toFixed(5));
+        q.set('lng', pos.coords.longitude.toFixed(5));
+        syncUrl(q);
+        map.setView([pos.coords.latitude, pos.coords.longitude], Math.max(MAP_ZOOM, 13));
+        load(q);
+      },
+      () => {
+        emptyEl.hidden = false;
+        emptyEl.textContent = 'Could not get your location (permission denied?). Choose an area and press Search.';
+      },
+      { timeout: 8000 }
+    );
+  }
+
+  document.getElementById('btn-area').addEventListener('click', searchArea);
+  document.getElementById('btn-here').addEventListener('click', searchHere);
+
+  // Initial load: honour URL place/GPS, fall back to the first curated area
+  (function init() {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('place') || (q.get('lat') && q.get('lng'))) {
+      load(q);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          q.set('lat', pos.coords.latitude.toFixed(5));
+          q.set('lng', pos.coords.longitude.toFixed(5));
+          syncUrl(q);
+          load(q);
+        },
+        () => {
+          const first = PLACES[0];
+          if (first) { select.value = first.slug; q.set('place', first.slug); syncUrl(q); }
+          load(q);
+        },
+        { timeout: 8000 }
+      );
+    } else {
+      load(q);
+    }
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Today's availability — Local Farm Map{% endblock %}
+{% block content %}
+<h1>What's available today?</h1>
+<p class="note">Toggle what you have today, add prices if you like, and submit. Listings expire automatically at midnight unless you renew them.</p>
+<form method="post" class="stack">
+  {{ csrf_input | safe }}
+  {% for item in products %}
+  <fieldset class="product">
+    <legend>{{ item.product.name }} <span class="muted">per {{ item.product.unit }}</span></legend>
+    <label class="check">
+      <input type="checkbox" name="available_{{ item.product.slug }}"
+             {% if item.listing and not item.listing.withdrawn_at %}checked{% endif %}>
+      Available today
+    </label>
+    <label>Price (KES, optional)
+      <input type="number" min="0" step="0.01" name="price_{{ item.product.slug }}"
+             value="{{ item.listing.price_kes if item.listing and item.listing.price_kes else '' }}">
+    </label>
+    <label>Quantity note (optional)
+      <input type="text" maxlength="140" name="note_{{ item.product.slug }}"
+             value="{{ item.listing.quantity_note if item.listing else '' }}">
+    </label>
+  </fieldset>
+  {% endfor %}
+  <button type="submit" class="btn btn-primary btn-big">Save availability</button>
+</form>
+{% endblock %}

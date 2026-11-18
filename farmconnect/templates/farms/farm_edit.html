@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Farm profile — Local Farm Map{% endblock %}
+{% block content %}
+<h1>{% if farm %}Edit farm profile{% else %}Create your farm profile{% endif %}</h1>
+<p class="note">Your exact location is never shown by default — buyers see an approximate pin about 1 km wide. You can allow the exact pin below.</p>
+<form method="post" class="stack">
+  {{ csrf_input | safe }}
+  <label>Farm name {{ form.name }} {{ form.name.errors }}</label>
+  <fieldset>
+    <legend>Farm location (pin on map)</legend>
+    <label>Latitude {{ form.lat }} {{ form.lat.errors }}</label>
+    <label>Longitude {{ form.lng }} {{ form.lng.errors }}</label>
+  </fieldset>
+  <label>Pickup hours {{ form.pickup_hours }} {{ form.pickup_hours.errors }}</label>
+  <label>Contact phone {{ form.contact_phone }} {{ form.contact_phone.errors }}</label>
+  <label>WhatsApp number (blank = same as contact phone) {{ form.whatsapp_number }} {{ form.whatsapp_number.errors }}</label>
+  <label class="check">{{ form.show_exact_pin }} Allow buyers to see my exact farm pin</label>
+  <button type="submit" class="btn btn-primary btn-big">Save profile</button>
+</form>
+{% endblock %}

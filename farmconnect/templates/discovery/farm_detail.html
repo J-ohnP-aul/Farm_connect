@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ farm.name }} — Local Farm Map{% endblock %}
+{% block content %}
+<h1>{{ farm.name }}</h1>
+{% if farm.pin.approximate %}<p class="note">Approximate location shown (about 1 km wide) to protect the farmer's home. Exact directions after you call.</p>{% endif %}
+
+<h2>Available today</h2>
+{% if farm.listings %}
+<ul class="listing-list">
+  {% for l in farm.listings %}
+  <li><strong>{{ l.product }}</strong>
+    {% if l.price_kes %} — KES {{ l.price_kes }}{% endif %}
+    {% if l.quantity_note %} <span class="muted">({{ l.quantity_note }})</span>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="muted">No active listings right now.</p>
+{% endif %}
+
+{% if farm.pickup_hours %}<p><strong>Pickup hours:</strong> {{ farm.pickup_hours }}</p>{% endif %}
+
+<h2>Contact the farmer</h2>
+<p>Phone: <strong>{{ farm.contact_phone }}</strong></p>
+<p class="note">You arrange pickup directly and pay at the farm gate.</p>
+<div class="cta">
+  <a class="btn btn-primary btn-big" href="{{ url('contact_redirect', args=[farm.id, 'call']) }}">Call</a>
+  <a class="btn btn-primary btn-big" href="{{ url('contact_redirect', args=[farm.id, 'whatsapp']) }}">WhatsApp</a>
+</div>
+{% endblock %}

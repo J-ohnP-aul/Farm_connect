@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Local Farm Map{% endblock %}
+{% block content %}
+<h1>{{ farm.name or 'Your farm' }}</h1>
+{% if not farm %}
+  <p>You have no farm profile yet.</p>
+  <a class="btn btn-primary" href="{{ url('farm_edit') }}">Create farm profile</a>
+{% else %}
+  <p class="status">
+    {% if farm.is_active %}
+      Visible to buyers
+    {% else %}
+      Waiting for onboarding — an admin will activate your farm before buyers can see it.
+    {% endif %}
+  </p>
+
+  <a class="btn btn-primary btn-big" href="{{ url('daily_update') }}">Update today's availability</a>
+  <a class="btn" href="{{ url('farm_edit') }}">Edit farm profile</a>
+
+  <h2>Today ({{ todays|length }} listing{{ '' if todays|length == 1 else 's' }})</h2>
+  {% if todays %}
+  <ul class="listing-list">
+    {% for l in todays %}
+    <li>
+      <strong>{{ l.product.name }}</strong>
+      {% if l.price_kes %} — KES {{ l.price_kes }}{% endif %}
+      {% if l.quantity_note %} <span class="muted">({{ l.quantity_note }})</span>{% endif %}
+      {% if l.withdrawn_at %} <span class="badge">sold out</span>
+      {% else %} <a class="linklike" href="{{ url('withdraw', args=[l.id]) }}">mark sold out</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">Nothing marked available today yet.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

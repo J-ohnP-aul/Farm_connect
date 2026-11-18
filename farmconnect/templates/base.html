@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Local Farm Map{% endblock %}</title>
+  <link rel="manifest" href="{{ static('pwa/manifest.webmanifest') }}">
+  <meta name="theme-color" content="#166534">
+  {% block head %}{% endblock %}
+  <link rel="stylesheet" href="{{ static('css/app.css') }}">
+</head>
+<body>
+  <nav class="topnav">
+    <a class="brand" href="{{ url('home') }}">Local Farm Map</a>
+    <div class="navlinks">
+      {% if request.user.is_authenticated %}
+        <a href="{{ url('dashboard') }}">Dashboard</a>
+        <form method="post" action="{{ url('logout') }}" class="inline">
+          {{ csrf_input | safe }}
+          <button type="submit" class="linklike">Log out</button>
+        </form>
+      {% else %}
+        <a href="{{ url('home') }}">Find food</a>
+        <a href="{{ url('register') }}">Farmer sign up</a>
+        <a href="{{ url('login') }}">Log in</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  {% for message in flash_messages(request) %}
+    <div class="flash flash-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block scripts %}{% endblock %}
+  {% if not debug %}
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('{{ static("pwa/sw.js") }}').catch(() => {});
+    }
+  </script>
+  {% endif %}
+</body>
+</html>
