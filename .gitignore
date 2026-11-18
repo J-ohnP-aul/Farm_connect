@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+
+# Django dev artefacts
+farmconnect/db.sqlite3
+farmconnect/staticfiles/
+
+# Environments
+.venv/
+venv/
