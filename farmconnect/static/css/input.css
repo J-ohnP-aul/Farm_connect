@@ -24,6 +24,9 @@
   .leaflet-pane img { max-width: none !important; }
   .leaflet-container { background: #E1DECF; }  /* soil-200 behind tiles */
   .leaflet-container a.leaflet-popup-close-button { color: #6F6B59; }
+  /* Calm the standard OSM tiles so green pins stand out from the roads
+     (terms-safe alternative to a keyed "light" basemap provider). */
+  .leaflet-tile { filter: saturate(0.5) brightness(1.05) contrast(0.9); }
 }
 
 @layer components {

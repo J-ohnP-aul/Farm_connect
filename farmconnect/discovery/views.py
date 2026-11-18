@@ -29,7 +29,7 @@ def home(request):
         {
             'slug': p.slug, 'name': p.name,
             'lat': p.location.y, 'lng': p.location.x,
-            'radius': p.search_radius_m,
+            'radius': round(p.search_radius_m / 1000),  # km, matches distance_km
         }
         for p in services.places()
     ])
