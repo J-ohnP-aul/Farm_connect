@@ -22,7 +22,7 @@
           {% if l.quantity_note %}<span class="block text-xs text-soil-500">{{ l.quantity_note }}</span>{% endif %}
         </span>
       </li>
-      {% empty %}
+      {% else %}
       <li class="py-3 text-sm text-soil-500">No active listings right now — check back tomorrow or call ahead.</li>
       {% endfor %}
     </ul>
