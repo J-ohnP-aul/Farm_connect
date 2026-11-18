@@ -1,30 +1,44 @@
 {% extends "base.html" %}
 {% block title %}{{ farm.name }} — Local Farm Map{% endblock %}
 {% block content %}
-<h1>{{ farm.name }}</h1>
-{% if farm.pin.approximate %}<p class="note">Approximate location shown (about 1 km wide) to protect the farmer's home. Exact directions after you call.</p>{% endif %}
+<article class="rounded-card border border-soil-200 bg-white p-5 shadow-sm">
+  <h1 class="text-2xl font-extrabold tracking-tight text-soil-900">{{ farm.name }}</h1>
 
-<h2>Available today</h2>
-{% if farm.listings %}
-<ul class="listing-list">
-  {% for l in farm.listings %}
-  <li><strong>{{ l.product }}</strong>
-    {% if l.price_kes %} — KES {{ l.price_kes }}{% endif %}
-    {% if l.quantity_note %} <span class="muted">({{ l.quantity_note }})</span>{% endif %}
-  </li>
-  {% endfor %}
-</ul>
-{% else %}
-<p class="muted">No active listings right now.</p>
-{% endif %}
+  {% if farm.pin.approximate %}
+  <p class="callout callout-wait mt-3">
+    Approximate location shown (about 1 km wide) to protect the farmer's
+    home. Exact directions after you call.
+  </p>
+  {% endif %}
 
-{% if farm.pickup_hours %}<p><strong>Pickup hours:</strong> {{ farm.pickup_hours }}</p>{% endif %}
+  <section class="mt-5">
+    <h2 class="text-xs font-bold uppercase tracking-widest text-soil-500">Available today</h2>
+    <ul class="mt-1 divide-y divide-soil-100">
+      {% for l in farm.listings %}
+      <li class="flex items-baseline justify-between gap-4 py-3">
+        <span class="font-semibold text-soil-900">{{ l.product }}</span>
+        <span class="text-right">
+          {% if l.price_kes %}<span class="font-mono font-bold text-leaf-800">KES {{ l.price_kes }}</span>{% endif %}
+          {% if l.quantity_note %}<span class="block text-xs text-soil-500">{{ l.quantity_note }}</span>{% endif %}
+        </span>
+      </li>
+      {% empty %}
+      <li class="py-3 text-sm text-soil-500">No active listings right now — check back tomorrow or call ahead.</li>
+      {% endfor %}
+    </ul>
+    {% if farm.pickup_hours %}
+    <p class="mt-2 text-sm text-soil-700"><span class="font-semibold">Pickup hours:</span> {{ farm.pickup_hours }}</p>
+    {% endif %}
+  </section>
 
-<h2>Contact the farmer</h2>
-<p>Phone: <strong>{{ farm.contact_phone }}</strong></p>
-<p class="note">You arrange pickup directly and pay at the farm gate.</p>
-<div class="cta">
-  <a class="btn btn-primary btn-big" href="{{ url('contact_redirect', args=[farm.id, 'call']) }}">Call</a>
-  <a class="btn btn-primary btn-big" href="{{ url('contact_redirect', args=[farm.id, 'whatsapp']) }}">WhatsApp</a>
-</div>
+  <section class="mt-6 rounded-card border border-leaf-200 bg-leaf-50 p-4">
+    <h2 class="text-base font-bold text-leaf-900">Contact the farmer</h2>
+    <p class="mt-1 text-sm text-soil-700">Phone: <span class="font-mono font-semibold text-soil-900">{{ farm.contact_phone }}</span></p>
+    <p class="mt-1 text-sm text-soil-700">You arrange pickup directly and pay at the farm gate.</p>
+    <div class="mt-4 grid gap-3">
+      <a class="btn btn-primary btn-lg" href="{{ url('contact_redirect', args=[farm.id, 'call']) }}">Call</a>
+      <a class="btn btn-secondary btn-lg" href="{{ url('contact_redirect', args=[farm.id, 'whatsapp']) }}">WhatsApp</a>
+    </div>
+  </section>
+</article>
 {% endblock %}

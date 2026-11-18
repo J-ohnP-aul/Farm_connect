@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Farm not found — Local Farm Map{% endblock %}
 {% block content %}
-<h1>Farm not found</h1>
-<p>This farm is not currently visible. <a href="{{ url('home') }}">Back to the map</a>.</p>
+<div class="rounded-card border border-soil-200 bg-white p-6 text-center">
+  <h1 class="text-xl font-extrabold text-soil-900">Farm not found</h1>
+  <p class="mx-auto mt-2 max-w-prose text-sm leading-relaxed text-soil-700">
+    This farm is not currently visible — it may still be awaiting onboarding
+    or has no active listings. The map always shows what is available today.
+  </p>
+  <a href="{{ url('home') }}" class="btn btn-primary mt-5 px-6">Back to the map</a>
+</div>
 {% endblock %}
