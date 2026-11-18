@@ -7,6 +7,7 @@ NOT in this form — only an admin activates a farm (curated pilot).
 
 from django import forms
 from django.contrib.gis.geos import Point
+from products.models import Product
 
 from .models import Farm
 
@@ -14,6 +15,13 @@ from .models import Farm
 class FarmProfileForm(forms.ModelForm):
     lat = forms.FloatField(label='Latitude', min_value=-90, max_value=90)
     lng = forms.FloatField(label='Longitude', min_value=-180, max_value=180)
+    products = forms.ModelMultipleChoiceField(  # FR-07: farmer selects what they sell
+        queryset=Product.objects.filter(is_active=True),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label='Products you sell',
+        help_text='Only these appear on your daily update screen.',
+    )
 
     class Meta:
         model = Farm

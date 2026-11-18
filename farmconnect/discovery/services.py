@@ -32,11 +32,23 @@ def _distance_filter(qs, origin, radius_m):
     point and the origin to settings.PILOT_UTM_SRID, then use D(m=...).
     Django's Distance lookups operate in degrees when both geometries are
     4326 on SpatiaLite, which is meaningless for a 15 km radius.
+    Returns (filtered_qs, origin_utm) so callers can reuse the transformed
+    origin for distance labels.
     """
     utm = settings.PILOT_UTM_SRID
     qs = qs.annotate(location_utm=Transform('location', utm))
     origin_utm = origin.transform(utm, clone=True)
-    return qs.filter(location_utm__distance_lte=(origin_utm, D(m=radius_m)))
+    return qs.filter(location_utm__distance_lte=(origin_utm, D(m=radius_m))), origin_utm
+
+
+def _distance_km(farm_location_utm, origin_utm):
+    """Distance rounded to the nearest 0.5 km.
+
+    Rounded deliberately: a precise figure combined with the approximate
+    pin would let a buyer triangulate the exact home location (BR-12).
+    """
+    metres = farm_location_utm.distance(origin_utm)
+    return round(metres / 500.0) / 2.0
 
 
 def _active_listings():
@@ -55,7 +67,7 @@ def nearby_farms(origin, product_slug=None, radius_m=None):
     """
     radius_m = radius_m or settings.DEFAULT_SEARCH_RADIUS_M
 
-    farms = _distance_filter(
+    farms, origin_utm = _distance_filter(
         Farm.objects.filter(is_active=True, owner__is_active=True),
         origin, radius_m,
     )
@@ -83,6 +95,7 @@ def nearby_farms(origin, product_slug=None, radius_m=None):
             'id': farm.id,
             'name': farm.name,
             'pickup_hours': farm.pickup_hours,
+            'distance_km': _distance_km(farm.location_utm, origin_utm),
             # Pin choice honours the farmer's opt-in (BR-08); the exact
             # location leaves the database only for opted-in farms.
             'pin': {

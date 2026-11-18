@@ -24,7 +24,12 @@ def daily_update(request):
         return redirect('farm_edit')
 
     today = local_today()
-    products = Product.objects.filter(is_active=True)
+    # FR-07: show only the products the farmer selected on their profile;
+    # a profile with no selection (transitional) falls back to the catalogue.
+    if farm.products.exists():
+        products = farm.products.filter(is_active=True)
+    else:
+        products = Product.objects.filter(is_active=True)
     existing = {l.product_id: l for l in Listing.objects.filter(farm=farm, listing_date=today)}
 
     if request.method == 'POST':
@@ -72,5 +77,5 @@ def withdraw(request, listing_id):
     if listing:
         listing.withdrawn_at = timezone.now()
         listing.save(update_fields=['withdrawn_at'])
-        messages.success(request, 'Listing marked sold out.')
+        messages.success(request, 'Marked sold out. Bring it back any time from "Update today\'s availability".')
     return redirect('dashboard')
