@@ -1,37 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Dashboard — Local Farm Map{% endblock %}
 {% block content %}
-<h1>{{ farm.name or 'Your farm' }}</h1>
+<div class="flex items-baseline justify-between gap-3">
+  <h1 class="text-2xl font-extrabold tracking-tight text-soil-900">{{ farm.name or 'Your farm' }}</h1>
+</div>
+
 {% if not farm %}
-  <p>You have no farm profile yet.</p>
-  <a class="btn btn-primary" href="{{ url('farm_edit') }}">Create farm profile</a>
+<div class="mt-4 rounded-card border border-soil-200 bg-white p-6 text-center">
+  <p class="text-sm leading-relaxed text-soil-700">You have no farm profile yet — set it up once, then daily updates take seconds.</p>
+  <a class="btn btn-primary btn-lg mt-4" href="{{ url('farm_edit') }}">Create farm profile</a>
+</div>
 {% else %}
-  <p class="status">
-    {% if farm.is_active %}
-      Visible to buyers
-    {% else %}
-      Waiting for onboarding — an admin will activate your farm before buyers can see it.
-    {% endif %}
-  </p>
+  {% if farm.is_active %}
+  <p class="callout callout-ok mt-3"><span class="font-bold">Visible to buyers.</span> Keep your listings fresh — they expire at midnight.</p>
+  {% else %}
+  <p class="callout callout-wait mt-3"><span class="font-bold">Waiting for onboarding.</span> An admin will activate your farm before buyers can see it.</p>
+  {% endif %}
 
-  <a class="btn btn-primary btn-big" href="{{ url('daily_update') }}">Update today's availability</a>
-  <a class="btn" href="{{ url('farm_edit') }}">Edit farm profile</a>
+  <a class="btn btn-primary btn-lg mt-4" href="{{ url('daily_update') }}">Update today's availability</a>
+  <a class="btn btn-secondary mt-2 w-full" href="{{ url('farm_edit') }}">Edit farm profile</a>
 
-  <h2>Today ({{ todays|length }} listing{{ '' if todays|length == 1 else 's' }})</h2>
+  <h2 class="mt-8 text-xs font-bold uppercase tracking-widest text-soil-500">
+    Today {% if todays %}({{ todays|length }} listing{{ '' if todays|length == 1 else 's' }}){% endif %}
+  </h2>
   {% if todays %}
-  <ul class="listing-list">
+  <ul class="mt-2 divide-y divide-soil-100 rounded-card border border-soil-200 bg-white">
     {% for l in todays %}
-    <li>
-      <strong>{{ l.product.name }}</strong>
-      {% if l.price_kes %} — KES {{ l.price_kes }}{% endif %}
-      {% if l.quantity_note %} <span class="muted">({{ l.quantity_note }})</span>{% endif %}
-      {% if l.withdrawn_at %} <span class="badge">sold out</span>
-      {% else %} <a class="linklike" href="{{ url('withdraw', args=[l.id]) }}">mark sold out</a>{% endif %}
+    <li class="flex items-center justify-between gap-3 px-4 py-3">
+      <div>
+        <span class="font-semibold text-soil-900">{{ l.product.name }}</span>
+        {% if l.price_kes %}<span class="ml-2 font-mono text-sm font-bold text-leaf-800">KES {{ l.price_kes }}</span>{% endif %}
+        {% if l.quantity_note %}<span class="block text-xs text-soil-500">{{ l.quantity_note }}</span>{% endif %}
+      </div>
+      {% if l.withdrawn_at %}
+      <span class="rounded-full bg-soil-100 px-3 py-1 text-xs font-bold text-soil-500">sold out</span>
+      {% else %}
+      <a class="btn btn-secondary min-h-[40px] px-3 py-1.5 text-xs" href="{{ url('withdraw', args=[l.id]) }}">Mark sold out</a>
+      {% endif %}
     </li>
     {% endfor %}
   </ul>
   {% else %}
-  <p class="muted">Nothing marked available today yet.</p>
+  <p class="mt-2 rounded-card border border-dashed border-soil-300 px-4 py-3 text-sm text-soil-500">
+    Nothing marked available today yet. One tap above gets you on the map.
+  </p>
   {% endif %}
 {% endif %}
 {% endblock %}

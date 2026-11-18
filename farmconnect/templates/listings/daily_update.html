@@ -1,28 +1,48 @@
 {% extends "base.html" %}
 {% block title %}Today's availability — Local Farm Map{% endblock %}
 {% block content %}
-<h1>What's available today?</h1>
-<p class="note">Toggle what you have today, add prices if you like, and submit. Listings expire automatically at midnight unless you renew them.</p>
-<form method="post" class="stack">
+<h1 class="text-2xl font-extrabold tracking-tight text-soil-900">What's available today?</h1>
+<p class="mt-2 max-w-prose text-sm leading-relaxed text-soil-700">
+  Toggle what you have, add prices if you like, then save.
+  Listings expire automatically at midnight unless renewed.
+</p>
+
+<form method="post" class="mt-5">
   {{ csrf_input | safe }}
-  {% for item in products %}
-  <fieldset class="product">
-    <legend>{{ item.product.name }} <span class="muted">per {{ item.product.unit }}</span></legend>
-    <label class="check">
-      <input type="checkbox" name="available_{{ item.product.slug }}"
-             {% if item.listing and not item.listing.withdrawn_at %}checked{% endif %}>
-      Available today
-    </label>
-    <label>Price (KES, optional)
-      <input type="number" min="0" step="0.01" name="price_{{ item.product.slug }}"
-             value="{{ item.listing.price_kes if item.listing and item.listing.price_kes else '' }}">
-    </label>
-    <label>Quantity note (optional)
-      <input type="text" maxlength="140" name="note_{{ item.product.slug }}"
-             value="{{ item.listing.quantity_note if item.listing else '' }}">
-    </label>
-  </fieldset>
-  {% endfor %}
-  <button type="submit" class="btn btn-primary btn-big">Save availability</button>
+  <div class="space-y-4">
+    {% for item in products %}
+    <fieldset class="rounded-card border bg-white p-4 {% if item.listing and not item.listing.withdrawn_at %}border-leaf-500{% else %}border-soil-200{% endif %}">
+      <label class="flex min-h-[56px] cursor-pointer items-center gap-3 rounded-lg px-1">
+        <input type="checkbox" name="available_{{ item.product.slug }}"
+               class="h-6 w-6 shrink-0"
+               {% if item.listing and not item.listing.withdrawn_at %}checked{% endif %}>
+        <span class="text-base font-bold text-soil-900">{{ item.product.name }}</span>
+        <span class="text-sm text-soil-500">per {{ item.product.unit }}</span>
+        {% if item.listing and item.listing.withdrawn_at %}
+        <span class="ml-auto rounded-full bg-soil-100 px-3 py-1 text-xs font-bold text-soil-500">sold out</span>
+        {% endif %}
+      </label>
+      <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-soil-700">
+          Price (KES, optional)
+          <input type="number" min="0" step="0.01" inputmode="decimal" name="price_{{ item.product.slug }}"
+                 value="{{ item.listing.price_kes if item.listing and item.listing.price_kes else '' }}"
+                 class="field-input mt-1">
+        </label>
+        <label class="block text-sm font-medium text-soil-700">
+          Quantity note (optional)
+          <input type="text" maxlength="140" name="note_{{ item.product.slug }}"
+                 value="{{ item.listing.quantity_note if item.listing else '' }}"
+                 class="field-input mt-1">
+        </label>
+      </div>
+    </fieldset>
+    {% endfor %}
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-lg mt-6">Save availability</button>
+  <p class="mt-2 text-center text-xs text-soil-500">
+    Untoggled products are marked sold out immediately.
+  </p>
 </form>
 {% endblock %}
