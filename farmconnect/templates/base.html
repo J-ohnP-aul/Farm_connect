@@ -5,35 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Local Farm Map{% endblock %}</title>
   <link rel="manifest" href="{{ static('pwa/manifest.webmanifest') }}">
-  <meta name="theme-color" content="#166534">
+  <meta name="theme-color" content="#2B5A31">
   {% block head %}{% endblock %}
-  <link rel="stylesheet" href="{{ static('css/app.css') }}">
+  <link rel="stylesheet" href="{{ static('css/main.css') }}">
 </head>
-<body>
-  <nav class="topnav">
-    <a class="brand" href="{{ url('home') }}">Local Farm Map</a>
-    <div class="navlinks">
-      {% if request.user.is_authenticated %}
-        <a href="{{ url('dashboard') }}">Dashboard</a>
-        <form method="post" action="{{ url('logout') }}" class="inline">
-          {{ csrf_input | safe }}
-          <button type="submit" class="linklike">Log out</button>
-        </form>
-      {% else %}
-        <a href="{{ url('home') }}">Find food</a>
-        <a href="{{ url('register') }}">Farmer sign up</a>
-        <a href="{{ url('login') }}">Log in</a>
-      {% endif %}
-    </div>
-  </nav>
+<body class="flex min-h-screen flex-col bg-soil-50 text-soil-900">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[60] focus:rounded-lg focus:bg-leaf-700 focus:px-4 focus:py-2 focus:font-semibold focus:text-white">Skip to content</a>
+
+  <header class="bg-leaf-800 text-white">
+    <nav class="mx-auto flex max-w-shell flex-wrap items-center justify-between gap-y-1 px-4 py-1.5" aria-label="Main">
+      <a href="{{ url('home') }}" class="flex min-h-[44px] items-center text-lg font-bold tracking-tight text-white">
+        Local Farm Map
+      </a>
+      <div class="flex flex-wrap items-center">
+        {% if request.user.is_authenticated %}
+          <a href="{{ url('dashboard') }}" class="flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-leaf-100 hover:bg-leaf-700 hover:text-white">Dashboard</a>
+          <form method="post" action="{{ url('logout') }}" class="inline">
+            {{ csrf_input | safe }}
+            <button type="submit" class="flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-leaf-100 hover:bg-leaf-700 hover:text-white">Log out</button>
+          </form>
+        {% else %}
+          <a href="{{ url('home') }}" class="flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-leaf-100 hover:bg-leaf-700 hover:text-white">Find food</a>
+          <a href="{{ url('register') }}" class="flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-leaf-100 hover:bg-leaf-700 hover:text-white">Farmer sign up</a>
+          <a href="{{ url('login') }}" class="flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-leaf-100 hover:bg-leaf-700 hover:text-white">Log in</a>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
 
   {% for message in flash_messages(request) %}
-    <div class="flash flash-{{ message.tags }}">{{ message }}</div>
+    <div class="mx-auto w-full max-w-shell px-4 pt-3">
+      <div class="flash flash-{{ message.tags }}" role="status">{{ message }}</div>
+    </div>
   {% endfor %}
 
-  <main>
+  <main id="main" class="mx-auto w-full max-w-shell flex-1 px-4 py-4">
     {% block content %}{% endblock %}
   </main>
+
+  <footer class="mx-auto w-full max-w-shell px-4 pb-8 pt-2 text-xs leading-relaxed text-soil-500">
+    Local Farm Map — fresh food from farms near you. Pickup at the farm gate; the platform never holds your money.
+  </footer>
 
   {% block scripts %}{% endblock %}
   {% if not debug %}

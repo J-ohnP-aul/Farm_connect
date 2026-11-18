@@ -1,11 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero">
-  <h1>Fresh food, from farms near you</h1>
-  <p>See which farms near {{ request.GET.place or 'you' }} have eggs, milk, honey or vegetables available today. Call or WhatsApp the farmer, pick up at the gate, pay on the spot.</p>
-  <div class="cta">
-    <a class="btn btn-primary" href="{{ url('home') }}">Open the map</a>
-    <a class="btn" href="{{ url('register') }}">I'm a farmer</a>
+<section class="py-6">
+  <p class="text-xs font-bold uppercase tracking-widest text-harvest-600">Kisii &amp; nearby farms</p>
+  <h1 class="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-soil-900 sm:text-4xl">
+    Fresh food, from farms <span class="text-leaf-700">near you</span>
+  </h1>
+  <p class="mt-4 max-w-prose text-base leading-relaxed text-soil-700">
+    See which farms around Kisii have eggs, milk, honey or vegetables
+    available today. Call or WhatsApp the farmer, pick up at the gate,
+    pay on the spot.
+  </p>
+  <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+    <a href="{{ url('home') }}" class="btn btn-primary btn-lg sm:w-auto sm:px-8">Open the map</a>
+    <a href="{{ url('register') }}" class="btn btn-secondary btn-lg sm:w-auto sm:px-8">I'm a farmer</a>
   </div>
+
+  <ul class="mt-10 flex flex-wrap gap-2" aria-label="What you can find">
+    {% for p in products %}
+    <li><span class="chip chip-idle">{{ p.name }}</span></li>
+    {% endfor %}
+  </ul>
+  <p class="mt-6 text-sm leading-relaxed text-soil-500">
+    Listings expire automatically at midnight — what you see is what's
+    available today, not last week's ad.
+  </p>
 </section>
 {% endblock %}
