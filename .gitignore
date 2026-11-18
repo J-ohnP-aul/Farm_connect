@@ -9,3 +9,6 @@ farmconnect/staticfiles/
 # Environments
 .venv/
 venv/
+
+# node
+node_modules/

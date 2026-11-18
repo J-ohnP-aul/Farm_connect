@@ -1,0 +1,60 @@
+/* Local Farm Map — Tailwind entry.
+   Tokens live in tailwind.config.js; repeated patterns below are small
+   component classes so templates stay readable and screens stay consistent. */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { @apply scroll-smooth; }
+  body { @apply bg-soil-50 font-sans text-soil-900 antialiased; }
+  /* Visible focus for keyboard users on every interactive element */
+  a:focus-visible,
+  button:focus-visible,
+  select:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-leaf-600 ring-offset-2 ring-offset-soil-50;
+  }
+  /* Checkbox/radio accent inside lists (e.g. product pickers) */
+  input[type='checkbox'], input[type='radio'] { @apply accent-leaf-700; }
+}
+
+@layer components {
+  /* --- buttons: full-width on the farmer's primary actions, ≥44px tall --- */
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-4 text-sm font-semibold no-underline transition-colors;
+  }
+  .btn-primary { @apply border-leaf-700 bg-leaf-700 text-white hover:bg-leaf-800 active:bg-leaf-900; }
+  .btn-secondary { @apply border-soil-300 bg-white text-leaf-800 hover:border-leaf-500 hover:bg-leaf-50 active:bg-leaf-100; }
+  .btn-lg { @apply w-full px-5 py-3.5 text-base; }
+
+  /* --- product chips --- */
+  .chip {
+    @apply inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium no-underline transition-colors;
+  }
+  .chip-active { @apply border-leaf-700 bg-leaf-700 text-white; }
+  .chip-idle { @apply border-soil-300 bg-white text-soil-700 hover:border-leaf-500 hover:text-leaf-800; }
+
+  /* --- flash banners: one shape per meaning --- */
+  .flash { @apply mb-3 rounded-lg border px-4 py-3 text-sm font-medium; }
+  .flash-success { @apply border-leaf-200 bg-leaf-50 text-leaf-800; }
+  .flash-error { @apply border-red-200 bg-red-50 text-red-800; }
+  .flash-warning { @apply border-harvest-300 bg-harvest-50 text-soil-800; }
+  .flash-debug, .flash-info { @apply border-soil-200 bg-soil-100 text-soil-700; }
+
+  /* --- form fields --- */
+  .field-label { @apply mb-1 block text-sm font-semibold text-soil-800; }
+  .field-input {
+    @apply block w-full rounded-lg border border-soil-300 bg-white px-3.5 py-3 text-base text-soil-900 placeholder-soil-400;
+    @apply focus:border-leaf-600 focus:outline-none focus:ring-2 focus:ring-leaf-600/40;
+  }
+  .field-error { @apply mt-1 text-sm font-medium text-red-800; }
+  .field-legend { @apply px-1 text-sm font-semibold text-soil-800; }
+
+  /* --- note/status callouts --- */
+  .callout { @apply rounded-lg border px-4 py-3 text-sm leading-relaxed; }
+  .callout-wait { @apply border-harvest-300 bg-harvest-50 text-soil-800; }
+  .callout-ok { @apply border-leaf-200 bg-leaf-50 text-leaf-800; }
+}
