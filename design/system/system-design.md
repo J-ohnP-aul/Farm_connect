@@ -1,7 +1,7 @@
 # Local Farm Map — System Design Document (SDD), V1
 
 **Version 1.0 · 17 November 2026 · Status: for approval**
-Scope: **A — Lean** (components & architecture only, by owner decision). Field-level data design → [database-design.md](../database/database-design.md) · Screens, journeys & wireframes → UI/UX Design Document (item 02 — next in this design queue; implementation begins only after it lands) · Requirements → [SRS v1.0](../../docs/Local_Farm_Map_SRS_v1.0.docx)
+Scope: **A — Lean** (components & architecture only, by owner decision). Field-level data design → [database-design.md](../database/database-design.md) · Screens, journeys & wireframes → [UI/UX Design](../uiux/ui-ux-design.md) · Requirements → [SRS v1.0](../../docs/Local_Farm_Map_SRS_v1.0.docx)
 
 ---
 
