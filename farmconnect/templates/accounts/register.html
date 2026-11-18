@@ -11,28 +11,28 @@
   <div>
     <label class="field-label" for="id_name">Your name</label>
     <input id="id_name" name="name" maxlength="120" autocomplete="name" required
-           class="field-input" value="{{ form.name.value or '' }}">
-    {% if form.name.errors %}<p class="field-error">{{ form.name.errors.0 }}</p>{% endif %}
+           class="field-input" value="{{ form.name.value() or '' }}">
+    {% if form.name.errors %}<p class="field-error">{% for e in form.name.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <div>
     <label class="field-label" for="id_phone_number">Phone number <span class="font-normal text-soil-500">(e.g. 0712 345 678)</span></label>
     <input id="id_phone_number" name="phone_number" type="tel" inputmode="tel" autocomplete="tel" required
-           class="field-input" value="{{ form.phone_number.value or '' }}">
-    {% if form.phone_number.errors %}<p class="field-error">{{ form.phone_number.errors.0 }}</p>{% endif %}
+           class="field-input" value="{{ form.phone_number.value() or '' }}">
+    {% if form.phone_number.errors %}<p class="field-error">{% for e in form.phone_number.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <div>
     <label class="field-label" for="id_password1">Password</label>
     <input id="id_password1" name="password1" type="password" autocomplete="new-password" required
            class="field-input">
-    {% if form.password1.errors %}<p class="field-error">{{ form.password1.errors.0 }}</p>{% endif %}
+    {% if form.password1.errors %}<p class="field-error">{% for e in form.password1.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <div>
     <label class="field-label" for="id_password2">Repeat password</label>
     <input id="id_password2" name="password2" type="password" autocomplete="new-password" required
            class="field-input">
-    {% if form.password2.errors %}<p class="field-error">{{ form.password2.errors.0 }}</p>{% endif %}
+    {% if form.password2.errors %}<p class="field-error">{% for e in form.password2.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
-  {% if form.non_field_errors %}<p class="field-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+  {% if form.non_field_errors() %}<p class="field-error">{% for e in form.non_field_errors() %}{{ e }}{% endfor %}</p>{% endif %}
   <button type="submit" class="btn btn-primary btn-lg">Create account</button>
 </form>
 <p class="mt-4 text-sm text-soil-700">

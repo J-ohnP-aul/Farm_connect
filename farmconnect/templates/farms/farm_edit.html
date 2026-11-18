@@ -13,54 +13,54 @@
   <div>
     <label class="field-label" for="id_name">Farm name</label>
     <input id="id_name" name="name" maxlength="140" required
-           class="field-input" value="{{ form.name.value or '' }}">
-    {% if form.name.errors %}<p class="field-error">{{ form.name.errors.0 }}</p>{% endif %}
+           class="field-input" value="{{ form.name.value() or '' }}">
+    {% if form.name.errors %}<p class="field-error">{% for e in form.name.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <fieldset class="rounded-lg border border-soil-300 p-3">
     <legend class="field-legend">Farm location (pin on map)</legend>
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <label class="block text-sm font-medium text-soil-700">Latitude
         <input name="lat" type="number" step="any" min="-90" max="90" required
-               class="field-input mt-1" value="{{ form.lat.value or '' }}">
-        {% if form.lat.errors %}<p class="field-error">{{ form.lat.errors.0 }}</p>{% endif %}
+               class="field-input mt-1" value="{{ form.lat.value() or '' }}">
+        {% if form.lat.errors %}<p class="field-error">{% for e in form.lat.errors %}{{ e }}{% endfor %}</p>{% endif %}
       </label>
       <label class="block text-sm font-medium text-soil-700">Longitude
         <input name="lng" type="number" step="any" min="-180" max="180" required
-               class="field-input mt-1" value="{{ form.lng.value or '' }}">
-        {% if form.lng.errors %}<p class="field-error">{{ form.lng.errors.0 }}</p>{% endif %}
+               class="field-input mt-1" value="{{ form.lng.value() or '' }}">
+        {% if form.lng.errors %}<p class="field-error">{% for e in form.lng.errors %}{{ e }}{% endfor %}</p>{% endif %}
       </label>
     </div>
   </fieldset>
   <div>
     <label class="field-label" for="id_pickup_hours">Pickup hours</label>
     <textarea id="id_pickup_hours" name="pickup_hours" rows="2"
-              class="field-input" placeholder="Mon-Sat, 7am-6pm">{{ form.pickup_hours.value or '' }}</textarea>
-    {% if form.pickup_hours.errors %}<p class="field-error">{{ form.pickup_hours.errors.0 }}</p>{% endif %}
+              class="field-input" placeholder="Mon-Sat, 7am-6pm">{{ form.pickup_hours.value() or '' }}</textarea>
+    {% if form.pickup_hours.errors %}<p class="field-error">{% for e in form.pickup_hours.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <div>
     <label class="field-label" for="id_contact_phone">Contact phone</label>
     <input id="id_contact_phone" name="contact_phone" type="tel" inputmode="tel" required
-           class="field-input" value="{{ form.contact_phone.value or '' }}">
-    {% if form.contact_phone.errors %}<p class="field-error">{{ form.contact_phone.errors.0 }}</p>{% endif %}
+           class="field-input" value="{{ form.contact_phone.value() or '' }}">
+    {% if form.contact_phone.errors %}<p class="field-error">{% for e in form.contact_phone.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <div>
     <label class="field-label" for="id_whatsapp_number">WhatsApp number <span class="font-normal text-soil-500">(blank = same as contact phone)</span></label>
     <input id="id_whatsapp_number" name="whatsapp_number" type="tel" inputmode="tel"
-           class="field-input" value="{{ form.whatsapp_number.value or '' }}">
-    {% if form.whatsapp_number.errors %}<p class="field-error">{{ form.whatsapp_number.errors.0 }}</p>{% endif %}
+           class="field-input" value="{{ form.whatsapp_number.value() or '' }}">
+    {% if form.whatsapp_number.errors %}<p class="field-error">{% for e in form.whatsapp_number.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <fieldset class="rounded-lg border border-soil-300 p-3">
     <legend class="field-legend">Products you sell <span class="font-normal text-soil-500">(only these appear on your daily update)</span></legend>
     <div class="checkbox-list mt-2">
       {{ form.products }}
     </div>
-    {% if form.products.errors %}<p class="field-error">{{ form.products.errors.0 }}</p>{% endif %}
+    {% if form.products.errors %}<p class="field-error">{% for e in form.products.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </fieldset>
   <label class="flex min-h-[56px] cursor-pointer items-center gap-3 rounded-lg border border-soil-300 px-4 text-sm font-medium text-soil-800">
     {{ form.show_exact_pin }}
     Allow buyers to see my exact farm pin
   </label>
-  {% if form.show_exact_pin.errors %}<p class="field-error">{{ form.show_exact_pin.errors.0 }}</p>{% endif %}
+  {% if form.show_exact_pin.errors %}<p class="field-error">{% for e in form.show_exact_pin.errors %}{{ e }}{% endfor %}</p>{% endif %}
   <button type="submit" class="btn btn-primary btn-lg">Save profile</button>
 </form>
 {% endblock %}

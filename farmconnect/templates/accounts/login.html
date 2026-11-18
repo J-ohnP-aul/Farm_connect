@@ -7,16 +7,16 @@
   <div>
     <label class="field-label" for="id_username">Phone number</label>
     <input id="id_username" name="username" type="tel" inputmode="tel" autocomplete="tel" required autofocus
-           class="field-input" value="{{ form.username.value or '' }}">
-    {% if form.username.errors %}<p class="field-error">{{ form.username.errors.0 }}</p>{% endif %}
+           class="field-input" value="{{ form.username.value() or '' }}">
+    {% if form.username.errors %}<p class="field-error">{% for e in form.username.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <div>
     <label class="field-label" for="id_password">Password</label>
     <input id="id_password" name="password" type="password" autocomplete="current-password" required
            class="field-input">
-    {% if form.password.errors %}<p class="field-error">{{ form.password.errors.0 }}</p>{% endif %}
+    {% if form.password.errors %}<p class="field-error">{% for e in form.password.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
-  {% if form.non_field_errors %}<p class="field-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+  {% if form.non_field_errors() %}<p class="field-error">{% for e in form.non_field_errors() %}{{ e }}{% endfor %}</p>{% endif %}
   <button type="submit" class="btn btn-primary btn-lg">Log in</button>
 </form>
 <p class="mt-4 text-sm text-soil-700">
