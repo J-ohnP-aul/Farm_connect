@@ -89,8 +89,11 @@ def nearby_farms(origin, product_slug=None, radius_m=None):
     results = []
     for farm in farms:
         farm_listings = by_farm.get(farm.id, [])
-        if product_slug and not farm_listings:
-            continue  # inside the radius but nothing active today
+        if not farm_listings:
+            # The map's only promise is "what you see is available today"
+            # (BR-07) — a farm with nothing live right now never appears,
+            # filtered or not, and never earns the Available-today badge.
+            continue
         results.append({
             'id': farm.id,
             'name': farm.name,
