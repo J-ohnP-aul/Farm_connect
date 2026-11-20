@@ -1,28 +1,39 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="py-6">
-  <p class="text-xs font-bold uppercase tracking-widest text-harvest-600">Kisii &amp; nearby farms</p>
-  <h1 class="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-soil-900 sm:text-4xl">
+  <p class="text-xs font-bold uppercase tracking-widest text-harvest-600">{{ place_name }}, Kenya</p>
+  <h1 class="mt-2 font-display text-3xl font-bold leading-tight tracking-tight text-soil-900 sm:text-4xl">
     Fresh food, from farms <span class="text-leaf-700">near you</span>
   </h1>
   <p class="mt-4 max-w-prose text-base leading-relaxed text-soil-700">
-    See which farms around Kisii have eggs, milk, honey or vegetables
-    available today. Call or WhatsApp the farmer, pick up at the gate,
-    pay on the spot.
+    See which farms around {{ place_name }} have eggs, milk, honey or
+    vegetables available <em>today</em>. Call or WhatsApp the farmer,
+    pick up at the gate, pay on the spot.
   </p>
+
+  {# live proof from the same data the map serves #}
+  <div class="mt-5 rounded-card border border-leaf-200 bg-leaf-50 px-4 py-3 text-sm leading-relaxed text-leaf-900">
+    <span class="font-display text-2xl font-bold">{{ open_farms }}</span>
+    farm{{ '' if open_farms == 1 else 's' }} open near {{ place_name }}&nbsp;·&nbsp;
+    <span class="font-display text-2xl font-bold">{{ listings_today }}</span>
+    listing{{ '' if listings_today == 1 else 's' }} for today
+  </div>
+
   <div class="mt-6 flex flex-col gap-3 sm:flex-row">
     <a href="{{ url('home') }}" class="btn btn-primary btn-lg sm:w-auto sm:px-8">Open the map</a>
     <a href="{{ url('register') }}" class="btn btn-secondary btn-lg sm:w-auto sm:px-8">I'm a farmer</a>
   </div>
 
-  <ul class="mt-10 flex flex-wrap gap-2" aria-label="What you can find">
+  <p class="mt-8 text-sm font-semibold text-soil-800">Selling on Local Farm Map:</p>
+  <p class="mt-1 max-w-prose text-sm leading-relaxed text-soil-700">
+    Post what's available each morning in one tap — buyers near you call or
+    WhatsApp you directly, and everything you don't renew disappears at
+    midnight. No fees in the pilot.
+  </p>
+  <ul class="mt-3 flex flex-wrap gap-2" aria-label="What you can find">
     {% for p in products %}
     <li><span class="chip chip-idle">{{ p.name }}</span></li>
     {% endfor %}
   </ul>
-  <p class="mt-6 text-sm leading-relaxed text-soil-500">
-    Listings expire automatically at midnight — what you see is what's
-    available today, not last week's ad.
-  </p>
 </section>
 {% endblock %}
