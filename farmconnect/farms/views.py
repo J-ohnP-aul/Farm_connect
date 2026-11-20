@@ -5,8 +5,11 @@ farm at in-person onboarding before buyers can see it (SDD §8, my call #10
 in database-design.md §12).
 """
 
+import json
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.shortcuts import redirect, render
 
 from listings.services import local_today
@@ -26,7 +29,17 @@ def farm_edit(request):
         form.save_m2m()
         messages.success(request, 'Farm profile saved.')
         return redirect('dashboard')
-    return render(request, 'farms/farm_edit.html', {'form': form, 'farm': farm})
+    # Pin-picker fallback centre when the farm has no location yet.
+    if farm and farm.location:
+        centre = [farm.location.y, farm.location.x]
+    else:
+        centre = list(settings.DEFAULT_MAP_CENTER)
+    return render(request, 'farms/farm_edit.html', {
+        'form': form,
+        'farm': farm,
+        'map_center': json.dumps(centre),
+        'map_zoom': settings.DEFAULT_MAP_ZOOM,
+    })
 
 
 @login_required

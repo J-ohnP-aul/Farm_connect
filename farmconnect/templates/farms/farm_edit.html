@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Farm profile — Local Farm Map{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
 {% block content %}
 <h1 class="text-2xl font-extrabold tracking-tight text-soil-900">
   {% if farm %}Edit farm profile{% else %}Create your farm profile{% endif %}
@@ -17,25 +20,36 @@
     {% if form.name.errors %}<p class="field-error">{% for e in form.name.errors %}{{ e }}{% endfor %}</p>{% endif %}
   </div>
   <fieldset class="rounded-lg border border-soil-300 p-3">
-    <legend class="field-legend">Farm location (pin on map)</legend>
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <label class="block text-sm font-medium text-soil-700">Latitude
-        <input id="id_lat" name="lat" type="number" step="any" min="-90" max="90" required
-               class="field-input mt-1" value="{{ form.lat.value() or '' }}">
-        {% if form.lat.errors %}<p class="field-error">{% for e in form.lat.errors %}{{ e }}{% endfor %}</p>{% endif %}
-      </label>
-      <label class="block text-sm font-medium text-soil-700">Longitude
-        <input id="id_lng" name="lng" type="number" step="any" min="-180" max="180" required
-               class="field-input mt-1" value="{{ form.lng.value() or '' }}">
-        {% if form.lng.errors %}<p class="field-error">{% for e in form.lng.errors %}{{ e }}{% endfor %}</p>{% endif %}
-      </label>
+    <legend class="field-legend">Farm location</legend>
+
+    <div id="pin-map" class="h-64 w-full overflow-hidden rounded-lg border border-soil-200" aria-label="Tap or drag the pin onto your farm"></div>
+
+    <div class="mt-3 flex flex-col gap-2 sm:flex-row">
+      <button id="btn-use-location" type="button"
+              class="btn btn-primary w-full sm:w-auto sm:px-6">
+        Use my current location
+      </button>
+      <p id="location-status" role="status" aria-live="polite"
+         class="hidden flex-1 self-center text-sm text-soil-600"></p>
     </div>
-    <button id="btn-use-location" type="button"
-            class="btn btn-secondary mt-3 w-full sm:w-auto sm:px-6">
-      Use my current location
-    </button>
-    <p id="location-status" role="status" aria-live="polite"
-       class="mt-2 hidden text-sm text-soil-600"></p>
+
+    <details class="mt-3 rounded-lg border border-soil-200 bg-soil-50 p-3">
+      <summary class="cursor-pointer text-sm font-semibold text-soil-700">
+        Enter coordinates manually
+      </summary>
+      <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-soil-700">Latitude
+          <input id="id_lat" name="lat" type="number" step="any" min="-90" max="90" required
+                 class="field-input mt-1" value="{{ form.lat.value() or '' }}">
+          {% if form.lat.errors %}<p class="field-error">{% for e in form.lat.errors %}{{ e }}{% endfor %}</p>{% endif %}
+        </label>
+        <label class="block text-sm font-medium text-soil-700">Longitude
+          <input id="id_lng" name="lng" type="number" step="any" min="-180" max="180" required
+                 class="field-input mt-1" value="{{ form.lng.value() or '' }}">
+          {% if form.lng.errors %}<p class="field-error">{% for e in form.lng.errors %}{{ e }}{% endfor %}</p>{% endif %}
+        </label>
+      </div>
+    </details>
   </fieldset>
   <div>
     <label class="field-label" for="id_pickup_hours">Pickup hours</label>
@@ -72,35 +86,88 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  // Fill lat/lng from the device's GPS so farmers never type coordinates.
+  // Location capture: drag the pin (or tap the map), or use device GPS.
+  // Manual lat/lng stay available under "Enter coordinates manually".
   (function () {
-    const btn = document.getElementById('btn-use-location');
+    const latEl = document.getElementById('id_lat');
+    const lngEl = document.getElementById('id_lng');
     const status = document.getElementById('location-status');
-    if (!btn) return;
-    if (!navigator.geolocation) { btn.hidden = true; return; }
+    const CENTER = {{ map_center | safe }};
+    const ZOOM = {{ map_zoom }};
 
-    function show(text) { status.hidden = false; status.textContent = text; }
+    function show(text) {
+      status.hidden = false;
+      status.classList.remove('hidden');
+      status.textContent = text;
+    }
+    function setCoords(lat, lng) {
+      latEl.value = Number(lat).toFixed(5);
+      lngEl.value = Number(lng).toFixed(5);
+      latEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
 
-    btn.addEventListener('click', () => {
+    // Start from saved coordinates; otherwise a GPS attempt fills the pin
+    // once granted (the farmer is on this screen precisely to place it).
+    const hasSaved = latEl.value && lngEl.value;
+    const start = hasSaved
+      ? [parseFloat(latEl.value), parseFloat(lngEl.value)]
+      : CENTER;
+    const map = L.map('pin-map').setView(start, ZOOM + 2);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a class="underline" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    const marker = L.marker(start, { draggable: true }).addTo(map);
+    marker.on('dragend', () => {
+      const p = marker.getLatLng();
+      setCoords(p.lat, p.lng);
+      show('Pin placed — drag it onto your farm buildings if it is off.');
+    });
+    map.on('click', e => {
+      marker.setLatLng(e.latlng);
+      setCoords(e.latlng.lat, e.latlng.lng);
+      show('Pin placed — drag it onto your farm buildings if it is off.');
+    });
+
+    if (!hasSaved) {
+      show('Drag the pin onto your farm, or tap "Use my current location".');
+    } else {
+      show('Pin starts at your saved location — drag it if it needs adjusting.');
+    }
+
+    document.getElementById('btn-use-location').addEventListener('click', () => {
+      const btn = document.getElementById('btn-use-location');
+      if (!navigator.geolocation) {
+        show('This device cannot share a location — drag the pin instead.');
+        return;
+      }
       btn.disabled = true;
       show('Finding your location…');
       navigator.geolocation.getCurrentPosition(
         pos => {
-          document.getElementById('id_lat').value = pos.coords.latitude.toFixed(5);
-          document.getElementById('id_lng').value = pos.coords.longitude.toFixed(5);
-          show('Location captured. Check it matches your farm — adjust by hand if needed.');
+          const ll = [pos.coords.latitude, pos.coords.longitude];
+          map.setView(ll, Math.max(map.getZoom(), 15));
+          marker.setLatLng(ll);
+          setCoords(ll[0], ll[1]);
+          show('Location captured — drag the pin onto your farm buildings if it is off.');
           btn.disabled = false;
         },
         err => {
           show('Could not get your location (' +
             (err.code === 1 ? 'permission denied' : err.code === 3 ? 'timed out' : 'unavailable') +
-            '). Enter it by hand or try again.');
+            '). Drag the pin onto your farm instead.');
           btn.disabled = false;
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
       );
     });
+
+    // keep map correct if the page lays out late
+    window.addEventListener('load', () => map.invalidateSize());
+    setTimeout(() => map.invalidateSize(), 600);
   })();
 </script>
 {% endblock %}
